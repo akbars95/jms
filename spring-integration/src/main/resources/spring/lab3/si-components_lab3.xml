@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd">
+
+
+    <!--<int-stream:stdin-channel-adapter id="producer" channel="messageChannel"/>-->
+    <int-file:inbound-channel-adapter directory="D:\work\2016\inbound\\lab3" id="file-producer"
+                                      channel="inMessageChannel"
+                                      prevent-duplicates="true">
+        <int:poller fixed-rate="5000"/>
+    </int-file:inbound-channel-adapter>
+    <int:filter input-channel="inMessageChannel" output-channel="outMessageChannel" ref="fileSelector"/>
+    <int-file:outbound-channel-adapter channel="outMessageChannel" id="consumer-file-adapter"
+                                       directory="D:\work\2016\outbound\\lab3"/>
+    <int:channel id="inMessageChannel"/>
+    <int:channel id="outMessageChannel"/>
+    <bean id="fileSelector" class="com.mtsmda.spring_integration.lab3.filters.FileSelector"/>
+
+    <!--new flow-->
+    <int-file:inbound-channel-adapter directory="D:\work\2016\inbound\\xmlXpath" channel="inMessageChannelForXML"
+                                      id="fileProducer" prevent-duplicates="true">
+        <int:poller fixed-rate="5000"/>
+    </int-file:inbound-channel-adapter>
+    <int:channel id="inMessageChannelForXML"/>
+    <int-file:file-to-string-transformer id="xmlFileToStringTransformer" input-channel="inMessageChannelForXML"
+                                         output-channel="inMessageChannelXPath" charset="UTF-8"/>
+    <int:channel id="inMessageChannelXPath"/>
+    <!--
+    /bookstore/book/price[text()='30.00']
+    //*[text() = 'Everyday Italian']
+    -->
+    <int-xml:xpath-expression expression="/bookstore/book/price[text()='30.00']" id="xPathExpression"/>
+    <int-xml:xpath-filter id="xPathFilter" input-channel="inMessageChannelXPath" match-type="exact"
+                          output-channel="inMessageChannelXML" xpath-expression-ref="xPathExpression"/>
+    <int:channel id="inMessageChannelXML"/>
+    <int-xml:validating-filter id="xsdValidationFilter" input-channel="inMessageChannelXML" output-channel="outMessageChannelXML" schema-location="bookstore.xsd"/>
+    <int:channel id="outMessageChannelXML"/>
+    <int-file:outbound-channel-adapter channel="outMessageChannelXML" id="fileConsumer"
+                                       directory="D:\work\2016\outbound\\xmlXpath"/>
+
+</beans>

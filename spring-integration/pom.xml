@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mtsmda.jms</groupId>
+    <artifactId>spring-integration</artifactId>
+    <packaging>war</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>spring-integration Maven Webapp</name>
+
+    <url>http://maven.apache.org</url>
+
+    <parent>
+        <groupId>com.mtsmda.workpiece.maven</groupId>
+        <artifactId>common</artifactId>
+        <version>3.0.RELEASE.16112016</version>
+    </parent>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>${org.springframework.integration.groupId}</groupId>
+            <artifactId>${spring-integration.artifactId}-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.springframework.integration.groupId}</groupId>
+            <artifactId>${spring-integration.artifactId}-stream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.springframework.integration.groupId}</groupId>
+            <artifactId>${spring-integration.artifactId}-file</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.springframework.integration.groupId}</groupId>
+            <artifactId>${spring-integration.artifactId}-xml</artifactId>
+        </dependency>
+
+        <!--logger-->
+        <dependency>
+            <groupId>${log4j.groupId}</groupId>
+            <artifactId>${log4j.groupId}</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>spring-integration</finalName>
+    </build>
+</project>
