@@ -1,16 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:int="http://www.springframework.org/schema/integration"
        xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
-http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd">
+http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.mtsmda.spring_integration.lab4"/>
+
 
     <int:channel id="messageChannelIn"/>
     <int-stream:stdin-channel-adapter id="producer" channel="messageChannelIn"/>
     <int:poller id="defaultPoller" default="true" max-messages-per-poll="5" fixed-rate="200"/>
     <int:channel id="messageChannelOut"/>
-    <int:transformer input-channel="messageChannelIn" output-channel="messageChannelOut" expression="new StringBuilder(payload).reverse().toString().toUpperCase()"/>
+    <int:transformer input-channel="messageChannelIn" output-channel="messageChannelOut"
+                     expression="new StringBuilder(payload).reverse().toString().toUpperCase()"/>
+    <int:transformer input-channel="messageChannelOut" output-channel="messageChannelOut" ref="myTransformer"/>
     <int-stream:stdout-channel-adapter id="consumer1" channel="messageChannelOut" append-newline="true"/>
+
+    <!--new flow-->
+
+    <bean id="jaxb2Marshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+        <!--<property name="contextPath" value="com.mtsmda.spring_integration.lab4.transformers.model"/>-->
+        <!--<property name="classesToBeBound" value="com.mtsmda.spring_integration.lab4.transformers.model.Book, com.mtsmda.spring_integration.lab4.transformers.model.BookStore"/>-->
+        <property name="packagesToScan" value="com.mtsmda.spring_integration.lab4.transformers.model"/>
+    </bean>
+
+    <int-file:inbound-channel-adapter directory="D:\work\2016\inbound\xmlUnMarshaling" channel="inMessageChannelForXML"
+                                      id="fileProducer" prevent-duplicates="true">
+        <int:poller fixed-rate="5000"/>
+    </int-file:inbound-channel-adapter>
+    <int:channel id="inMessageChannelForXML"/>
+    <int-file:file-to-string-transformer id="xmlFileToStringTransformer" input-channel="inMessageChannelForXML"
+                                         output-channel="inMessageChannelXPath" charset="UTF-8"/>
+    <int:channel id="inMessageChannelXPath"/>
+    <!--
+    /bookstore/book/price[text()='30.00']
+    //*[text() = 'Everyday Italian']
+    -->
+    <int-xml:xpath-expression expression="/bookstore/book/price[text()='30.00']" id="xPathExpression"/>
+    <int-xml:xpath-filter id="xPathFilter" input-channel="inMessageChannelXPath" match-type="exact"
+                          output-channel="inMessageChannelXML" xpath-expression-ref="xPathExpression"/>
+    <int:channel id="inMessageChannelXML"/>
+    <int-xml:validating-filter id="xsdValidationFilter" input-channel="inMessageChannelXML"
+                               output-channel="outMessageChannelXML" schema-location="bookstore.xsd"/>
+    <int:channel id="outMessageChannelXML"/>
+    <int-xml:unmarshalling-transformer unmarshaller="jaxb2Marshaller" input-channel="outMessageChannelXML"
+                                       output-channel="outMessageChannelXML"/>
+    <int-stream:stdout-channel-adapter channel="outMessageChannelXML" id="soutAdapter"/>
+    <int-file:outbound-channel-adapter channel="outMessageChannelXML" id="fileConsumer"
+                                       directory="D:\work\2016\outbound\xmlUnMarshaling"/>
+
 </beans>
