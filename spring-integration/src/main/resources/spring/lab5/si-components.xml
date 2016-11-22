@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd">
+
+    <context:component-scan base-package="com.mtsmda.spring_integration.lab5.routers"/>
+    <context:annotation-config/>
+
+    <int:channel id="inputChannel"/>
+    <int:channel id="outputChannelForJava"/>
+    <int:channel id="outputChannelForDotNet"/>
+
+    <int:channel id="outputChannelString"/>
+    <int:channel id="outputChannelInteger"/>
+
+    <int:channel id="big10Length"/>
+    <int:channel id="less10Length"/>
+
+    <int:channel id="xmlFile"/>
+    <int:channel id="textFile"/>
+
+    <int:poller id="defaultPoller" default="true" max-messages-per-poll="5" fixed-rate="1000"/>
+    <int-stream:stdin-channel-adapter channel="inputChannel"/>
+
+    <!--<int:payload-type-router input-channel="inputChannel">
+        <int:mapping type="java.lang.String" channel="outputChannelString"/>
+        <int:mapping type="java.lang.Integer" channel="outputChannelInteger"/>
+    </int:payload-type-router>-->
+
+    <!--<bean id="recipientListRouter" class="org.springframework.integration.router.RecipientListRouter">
+        <property name="channels">
+            <list>
+                <ref bean="outputChannelForJava"/>
+                <ref bean="outputChannelForDotNet"/>
+                <ref bean="outputChannelString"/>
+                <ref bean="outputChannelInteger"/>
+            </list>
+        </property>
+    </bean>-->
+
+    <int:router ref="annotatedCustomRouter" input-channel="inputChannel" id="annotatedCustomRouterRouter"/>
+
+    <int:recipient-list-router id="reipientListRouter" input-channel="inputChannel" timeout="1234"
+                               ignore-send-failures="true" apply-sequence="true">
+        <int:recipient channel="outputChannelForJava" selector-expression="new String(payload).startsWith('java')"/>
+        <int:recipient channel="outputChannelString" selector-expression="new String(payload).startsWith('string')"/>
+        <int:recipient channel="outputChannelInteger" selector-expression="new String(payload).startsWith('integer')"/>
+    </int:recipient-list-router>
+
+    <int:router input-channel="outputChannelForJava" ref="customRouter" method="router"/>
+
+    <bean id="customRouter" class="com.mtsmda.spring_integration.lab5.routers.CustomRouter"/>
+    <!--<bean id="payloadTypeRouter" class="org.springframework.integration.router.PayloadTypeRouter">
+        <property name="channelMappings">
+            <map>
+                <entry key="java.lang.String" value="outputChannelString"/>
+                <entry key="java.lang.Integer" value="outputChannelInteger"/>
+            </map>
+        </property>
+    </bean>-->
+
+    <!--<int:router input-channel="inputChannel" expression="payload.startsWith">
+        <int:mapping value="java" channel="outputChannelForJava"/>
+        <int:mapping value=".net" channel="outputChannelForDotNet"/>
+    </int:router>-->
+
+    <!--<int-stream:stdout-channel-adapter channel="inputChannel"/>-->
+    <int-stream:stdout-channel-adapter channel="big10Length"/>
+    <int-stream:stdout-channel-adapter channel="less10Length"/>
+    <int-stream:stdout-channel-adapter channel="outputChannelForJava"/>
+    <int-stream:stdout-channel-adapter channel="outputChannelForDotNet"/>
+
+    <int-stream:stdout-channel-adapter channel="outputChannelString"/>
+    <int-stream:stdout-channel-adapter channel="outputChannelInteger"/>
+
+    <int-stream:stdout-channel-adapter channel="xmlFile"/>
+    <int-stream:stdout-channel-adapter channel="textFile"/>
+
+</beans>
