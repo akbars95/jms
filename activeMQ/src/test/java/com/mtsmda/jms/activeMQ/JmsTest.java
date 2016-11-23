@@ -4,14 +4,19 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.jms.*;
 
 /**
  * Created by dminzat on 11/23/2016.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:spring-beans.xml"})
 public class JmsTest {
 
     /* Constant(s): */
@@ -45,12 +50,10 @@ public class JmsTest {
             final String theMessageString = "Message: " + theMessageIndex;
             System.out.println("Sending message with text: " + theMessageString);
 
-            mJmsTemplate.send(new MessageCreator() {
-                public Message createMessage(Session inJmsSession) throws JMSException {
-                    TextMessage theTextMessage = inJmsSession.createTextMessage(theMessageString);
-                    theTextMessage.setIntProperty("messageNumber", theMessageIndex);
-                    return theTextMessage;
-                }
+            mJmsTemplate.send(inJmsSession -> {
+                TextMessage theTextMessage = inJmsSession.createTextMessage(theMessageString);
+                theTextMessage.setIntProperty("messageNumber", theMessageIndex);
+                return theTextMessage;
             });
         }
     }
@@ -59,7 +62,7 @@ public class JmsTest {
         Message theReceivedMessage = mJmsTemplate.receive();
         while (theReceivedMessage != null) {
             if (theReceivedMessage instanceof TextMessage) {
-                final TextMessage theTextMessage = (TextMessage)theReceivedMessage;
+                final TextMessage theTextMessage = (TextMessage) theReceivedMessage;
                 System.out.println("Received a message with text: " + theTextMessage.getText());
             }
             theReceivedMessage = mJmsTemplate.receive();
