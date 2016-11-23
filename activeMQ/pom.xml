@@ -21,6 +21,8 @@
         <!--<maven.clean.excludeDefaultDirectories>false</maven.clean.excludeDefaultDirectories>-->
         <!--<maven.clean.failOnError>false</maven.clean.failOnError>-->
         <!--<maven.clean.skip>true</maven.clean.skip>-->
+
+        <!--<maven.compiler.verbose>true</maven.compiler.verbose>-->
     </properties>
 
     <dependencies>
@@ -89,6 +91,17 @@
                             <useDefaultExcludes>true</useDefaultExcludes>
                         </fileset>
                     </filesets>-->
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>${org.apache.maven.plugins.groupId}</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerVersion>${project.java.version}</compilerVersion>
+                    <target>${project.java.version}</target>
+                    <source>${project.java.version}</source>
+                    <!--<verbose>true</verbose>-->
                 </configuration>
             </plugin>
 
