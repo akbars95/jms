@@ -18,6 +18,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--<maven.clean.excludeDefaultDirectories>false</maven.clean.excludeDefaultDirectories>-->
+        <!--<maven.clean.failOnError>false</maven.clean.failOnError>-->
+        <!--<maven.clean.skip>true</maven.clean.skip>-->
     </properties>
 
     <dependencies>
@@ -58,8 +61,37 @@
 
     </dependencies>
 
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>${org.apache.maven.plugins.groupId}</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <!--<excludeDefaultDirectories>false</excludeDefaultDirectories>-->
+                    <!--<failOnError></failOnError>-->
+                    <!--<skip>true</skip>-->
+                    <!--<filesets>
+                        <fileset>
+                            <directory>src_new</directory>
+                            <followSymlinks>false</followSymlinks>
+                            <useDefaultExcludes>true</useDefaultExcludes>
+                            &lt;!&ndash;<includes>
+                                <include>*.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>Template*</exclude>
+                            </excludes>&ndash;&gt;
+                        </fileset>
+                        <fileset>
+                            <directory>D:\work\github\jms\activeMQ\dfgdf</directory>
+                            <followSymlinks>false</followSymlinks>
+                            <useDefaultExcludes>true</useDefaultExcludes>
+                        </fileset>
+                    </filesets>-->
+                </configuration>
+            </plugin>
+
             <!--
                 Starts an minimal embedded ActiveMQ broker for the test.
             -->
