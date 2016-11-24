@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.mtsmda.spring_integration.lab6"/>
+
+    <!--
+        <bean id="stringToPersonTransformer"
+              class="com.mtsmda.spring_integration.lab6.enrichers.StringToPersonTransformer"/>
+    -->
+
+    <!--<bean id="personToStringTransformer" class="com.mtsmda.spring_integration.lab6.enrichers.PersonToStringTransformer"/>-->
+
+    <!--<int:channel id="inboundMessageChannel"/>
+    <int:channel id="outboundMessageChannel"/>
+
+    <int-stream:stdin-channel-adapter id="producer" channel="inboundMessageChannel"/>
+    <int:poller id="defaultPoller" default="true" max-messages-per-poll="5" fixed-rate="200"/>
+
+    <int:transformer input-channel="inboundMessageChannel" output-channel="outboundMessageChannel"
+                     ref="stringToPersonTransformer"/>
+
+    <int:enricher id="enrich" input-channel="outboundMessageChannel" output-channel="outboundMessageChannel">
+        <int:property name="verified" value="true"/>
+        &lt;!&ndash;<int:property name="firstName" expression="firstName.length() > 5 ? firstName.concat('M') : firstName.concat('L')"/>&ndash;&gt;
+    </int:enricher>-->
+
+    <!--<int:recipient-list-router id="recipientListRouter" input-channel="inboundMessageChannel" timeout="1234"
+                               ignore-send-failures="true" apply-sequence="true">
+        <int:recipient channel="outboundMessageChannel"/>
+    </int:recipient-list-router>-->
+
+    <!--<int:transformer input-channel="outboundMessageChannel" output-channel="outboundMessageChannel" ref="personToStringTransformer"/>-->
+
+    <!--<int-stream:stdout-channel-adapter id="consumer" channel="outboundMessageChannel" append-newline="true"/>-->
+
+    <!--football club-->
+    <bean id="stringToFootballClubTransformer"
+          class="com.mtsmda.spring_integration.lab6.enrichers.football.StringToFootballClubTransformer"/>
+    <bean id="footballClubEnricher" class="com.mtsmda.spring_integration.lab6.enrichers.football.FootballClubEnricher"/>
+
+    <int:channel id="inFootballClub"/>
+    <int:channel id="footballClubAfterTransformer"/>
+    <int:channel id="footballClubEnricherServiceActivator"/>
+    <int:channel id="footballClubAfterEnricher"/>
+    <int:channel id="outFootballClub"/>
+
+    <int-stream:stdin-channel-adapter id="producerFC" channel="inFootballClub"/>
+    <int:poller id="defaultPoller" default="true" max-messages-per-poll="5" fixed-rate="200"/>
+
+    <int:transformer input-channel="inFootballClub" output-channel="footballClubAfterTransformer"
+                     ref="stringToFootballClubTransformer"/>
+
+    <int:service-activator id="enricher-service-activator" ref="footballClubEnricher"
+                           input-channel="footballClubEnricherServiceActivator"/>
+    <int:enricher id="footballClubNextPathDifinition" input-channel="footballClubAfterTransformer"
+                  output-channel="footballClubAfterEnricher" request-channel="footballClubEnricherServiceActivator">
+        <int:property name="footballNextPath" expression="payload"/>
+    </int:enricher>
+
+    <int:recipient-list-router id="recipientListRouter" input-channel="footballClubAfterEnricher" timeout="1234"
+                               ignore-send-failures="true" apply-sequence="true">
+        <int:recipient channel="outFootballClub"/>
+    </int:recipient-list-router>
+
+    <int-stream:stdout-channel-adapter id="consumerFC" channel="outFootballClub" append-newline="true"/>
+</beans>
