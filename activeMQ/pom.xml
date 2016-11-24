@@ -65,6 +65,16 @@
 
 
     <build>
+        <resources>
+            <!--add additional resources folder-->
+            <resource>
+                <directory>src/my-resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>${org.apache.maven.plugins.groupId}</groupId>
@@ -119,6 +129,15 @@
                     </excludes>
                 </configuration>-->
             </plugin>
+
+            <plugin>
+                <groupId>${org.apache.maven.plugins.groupId}</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
 
             <!--
                 Starts an minimal embedded ActiveMQ broker for the test.
