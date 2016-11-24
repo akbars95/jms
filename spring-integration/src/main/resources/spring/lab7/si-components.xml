@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xmlns:int-xml="http://www.springframework.org/schema/integration/xml"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.mtsmda.spring_integration.lab7"/>
+
+    <bean id="serviceActivatorInOut" class="com.mtsmda.spring_integration.lab7.service_activators.ServiceActivatorInOut"/>
+    <bean id="multipleServiceActivator" class="com.mtsmda.spring_integration.lab7.service_activators.MultipleServiceActivator"/>
+
+    <int:channel id="inboundMessageChannel"/>
+    <int:channel id="beforeRouterMessageChannel"/>
+    <int:channel id="router1MessageChannel"/>
+    <int:channel id="router2MessageChannel"/>
+    <int:channel id="outboundMessageChannel"/>
+
+    <int-stream:stdin-channel-adapter id="producer" channel="inboundMessageChannel"/>
+    <int:poller id="defaultPoller" default="true" max-messages-per-poll="5" fixed-rate="200"/>
+
+    <int:service-activator id="serviceActivatorINOUT" input-channel="inboundMessageChannel" output-channel="beforeRouterMessageChannel" ref="serviceActivatorInOut"/>
+
+    <int:recipient-list-router id="reipientListRouter" input-channel="beforeRouterMessageChannel" timeout="1234"
+                               ignore-send-failures="true" apply-sequence="true">
+        <int:recipient channel="router1MessageChannel" />
+        <int:recipient channel="router2MessageChannel" />
+    </int:recipient-list-router>
+
+    <int:service-activator id="serviceActivatorIN" input-channel="router1MessageChannel" ref="multipleServiceActivator" method="first"/>
+
+    <int:service-activator id="serviceActivatorOUT" input-channel="router2MessageChannel" ref="multipleServiceActivator" method="second" output-channel="router2MessageChannel"/>
+
+    <int-stream:stdout-channel-adapter id="consumer" channel="outboundMessageChannel" append-newline="true"/>
+    <int-stream:stdout-channel-adapter id="consumer2" channel="router1MessageChannel" append-newline="true"/>
+    <int-stream:stdout-channel-adapter id="consumer3" channel="router2MessageChannel" append-newline="true"/>
+
+</beans>
