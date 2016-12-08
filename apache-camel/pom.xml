@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mtsmda.camel</groupId>
+    <artifactId>camel</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>camel</name>
+    <url>http://maven.apache.org</url>
+
+    <parent>
+        <groupId>com.mtsmda.workpiece.maven</groupId>
+        <artifactId>common</artifactId>
+        <version>4.0.RELEASE.01122016</version>
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${org.apache.camel.groupId}</groupId>
+            <artifactId>${camel.artifactId}-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.apache.camel.groupId}</groupId>
+            <artifactId>${camel.artifactId}-stream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.apache.camel.groupId}</groupId>
+            <artifactId>${camel.artifactId}-jms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.apache.activemq.groupId}</groupId>
+            <artifactId>${activemq.artifactId}-camel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.apache.camel.groupId}</groupId>
+            <artifactId>${camel.artifactId}-spring</artifactId>
+        </dependency>
+
+        <!--spring-->
+        <dependency>
+            <groupId>${org.springframework.groupId}</groupId>
+            <artifactId>${spring.artifactId}-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${org.springframework.groupId}</groupId>
+            <artifactId>${spring.artifactId}-context</artifactId>
+        </dependency>
+    </dependencies>
+</project>
